@@ -1,0 +1,69 @@
+import java.util.Scanner;
+
+public class CalculadoraBasica {
+
+    public static void main(String[] args) {
+        // Objeto Scanner para leer la entrada del usuario
+        Scanner scanner = new Scanner(System.in);
+        double resultado = 0; // Variable para almacenar el resultado
+
+        System.out.println("--- Calculadora Básica en Java ---");
+
+        // 1. Pedir el primer número
+        System.out.print("Introduce el primer número: ");
+        // Verifica que la entrada sea un número (double)
+        while (!scanner.hasNextDouble()) {
+            System.out.println("Entrada inválida. Por favor, introduce un número.");
+            scanner.next(); // Descarta la entrada incorrecta
+            System.out.print("Introduce el primer número: ");
+        }
+        double num1 = scanner.nextDouble();
+
+        // 2. Pedir la operación
+        System.out.print("Introduce la operación (+, -, *, /): ");
+        String operacion = scanner.next();
+
+        // 3. Pedir el segundo número
+        System.out.print("Introduce el segundo número: ");
+        // Verifica que la entrada sea un número (double)
+        while (!scanner.hasNextDouble()) {
+            System.out.println("Entrada inválida. Por favor, introduce un número.");
+            scanner.next(); // Descarta la entrada incorrecta
+            System.out.print("Introduce el segundo número: ");
+        }
+        double num2 = scanner.nextDouble();
+
+        // 4. Realizar el cálculo usando un switch
+        switch (operacion) {
+            case "+":
+                resultado = num1 + num2;
+                System.out.println(num1 + " + " + num2 + " = " + resultado);
+                break;
+            case "-":
+                resultado = num1 - num2;
+                System.out.println(num1 + " - " + num2 + " = " + resultado);
+                break;
+            case "*":
+                resultado = num1 * num2;
+                System.out.println(num1 + " * " + num2 + " = " + resultado);
+                break;
+            case "/":
+                // Manejo de la división por cero
+                if (num2 != 0) {
+                    resultado = num1 / num2;
+                    System.out.println(num1 + " / " + num2 + " = " + resultado);
+                } else {
+                    System.out.println("Error: No se puede dividir por cero.");
+                }
+                break;
+            default:
+                // Si la operación no es válida
+                System.out.println("Error: Operación no válida.");
+                break;
+        }
+
+        // 5. Cerrar el objeto Scanner
+        scanner.close();
+        System.out.println("--- Fin de la Calculadora ---");
+    }
+}
