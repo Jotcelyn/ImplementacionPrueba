@@ -49,12 +49,13 @@ pipeline {
         // STAGE 4: CD - Subida a Docker Hub
         // ==========================================================
         stage('Push to Docker Hub') {
-            // Usa las credenciales de Docker Hub almacenadas en Jenkins
-            withCredentials([usernamePassword(credentialsId: DOCKER_CRED_ID, 
-                                             passwordVariable: 'DOCKER_PASSWORD', 
-                                             usernameVariable: 'DOCKER_USERNAME')]) {
-                steps {
-                    // 1. Etiquetar la imagen con el tag 'latest'
+            // AÑADIR EL BLOQUE 'steps' AQUI
+            steps { 
+                // Usa las credenciales de Docker Hub almacenadas en Jenkins
+                withCredentials([usernamePassword(credentialsId: DOCKER_CRED_ID, 
+                                                 passwordVariable: 'DOCKER_PASSWORD', 
+                                                 usernameVariable: 'DOCKER_USERNAME')]) {
+                    // Aquí van los comandos sh
                     sh "docker tag ${DOCKER_IMAGE}:${env.BUILD_ID} ${DOCKER_IMAGE}:latest"
                     
                     // 2. Login en Docker Hub (usa las variables de credenciales)
