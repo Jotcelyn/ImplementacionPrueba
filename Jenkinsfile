@@ -1,29 +1,28 @@
+// Definición del Pipeline Declarativo
 pipeline {
-    // Agente global: Usamos el contenedor de Jenkins (o 'any') para las operaciones por defecto.
+    // Agente global: Usamos el agente principal de Jenkins (debe tener Docker instalado).
     agent any 
 
     environment {
-        // ... (Variables de entorno iguales)
+        // Asegúrate de cambiar esto a tu usuario de Docker Hub
         DOCKER_IMAGE = "tuusuario/implementacionprueba" 
         DOCKER_CRED_ID = 'docker-hub-creds'
         APP_CONTAINER_NAME = 'mi-app-web-contenedor'
     }
 
+    // Directiva tools: Asegura que Maven esté en el PATH para cualquier etapa que lo necesite.
+    // El nombre 'M3_HOME' DEBE coincidir con el nombre que configuraste en Global Tool Configuration.
+    tools {
+        maven 'M3_HOME'
+    }
+
     stages {
         // ==========================================================
         // STAGE 1: CI - Construcción del código con Maven
-        // Requiere el contenedor Maven para que el comando 'mvn' funcione.
         // ==========================================================
         stage('Maven Build') {
-            // *** SOLUCIÓN: Usar un agente Docker con Maven ***
-            agent {
-                docker {
-                    image 'maven:3.9-openjdk-17' // La imagen que contiene el comando 'mvn'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock' // Pasar el socket si es necesario
-                }
-            }
             steps {
-                // El comando 'mvn' ahora funcionará dentro de este contenedor Maven
+                // El comando 'mvn' ahora funcionará porque está en la directiva 'tools'
                 sh 'mvn clean package -DskipTests' 
             }
         }
@@ -32,29 +31,25 @@ pipeline {
         // STAGE 2: CI - Pruebas Unitarias
         // ==========================================================
         stage('Test') {
-            agent {
-                docker {
-                    image 'maven:3.9-openjdk-17' 
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
             steps {
+                // Aquí podrías ejecutar pruebas unitarias si las tuvieras: sh 'mvn test'
                 echo 'Skipping unit tests for quick demonstration.'
             }
         }
         
         // ==========================================================
         // STAGE 3: CD - Construcción de la Imagen Docker
-        // Usamos el agente por defecto (any) que debe tener acceso al docker.sock
         // ==========================================================
         stage('Build Docker Image') {
             steps {
+                // Construye la imagen usando el Dockerfile en la raíz.
                 sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_ID} ."
             }
         }
 
-        // ... (Stages 4 y 5 iguales, ya que 'docker' y 'sh' funcionan en el agente por defecto) ...
-        
+        // ==========================================================
+        // STAGE 4: CD - Subida a Docker Hub
+        // ==========================================================
         stage('Push to Docker Hub') {
             steps { 
                 withCredentials([usernamePassword(credentialsId: DOCKER_CRED_ID, 
@@ -68,6 +63,9 @@ pipeline {
             }
         }
 
+        // ==========================================================
+        // STAGE 5: CD - Despliegue de la Aplicación
+        // ==========================================================
         stage('Deploy Application') {
             steps {
                 echo "Deploying container ${APP_CONTAINER_NAME}..."
